@@ -30,3 +30,5 @@ find pipeline_v1.5_results -name "*.variants.tsv" > v1.5.fofn
 find pipeline_v1.6_results -name "*.variants.tsv" > v1.6.fofn
 python compare_variant_calls.py -a-fofn v1.5.fofn -b-fofn v1.6.fofn -a-name v1.5 -b-name v1.6
 ```
+
+It is recommended that you filter the results list of variant calling differences to remove samples that fail QC (e.g. <90% completeness).
