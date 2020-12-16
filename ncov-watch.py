@@ -62,7 +62,7 @@ def get_from_stdin():
     for line in sys.stdin:
         yield line.rstrip()
 
-description = 'Mask amplicons detected in negative controls from a consensus genome'
+description = 'Report samples containing a variant in the watchlist'
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('-w', '--watchlist', help='file containing the variants to screen for')
 parser.add_argument('-d', '--directory', help='root of directories holding variant files')
