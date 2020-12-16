@@ -33,7 +33,7 @@ python compare_variant_calls.py -a-fofn v1.5.fofn -b-fofn v1.6.fofn -a-name v1.5
 
 It is recommended that you filter the results list of variant calling differences to remove samples that fail QC (e.g. <90% completeness).
 
-## Search for variants of interest in a collection of genomes
+### Search for variants of interest in a collection of genomes
 
 This script will recursively search a directory structure for variants files (ivar `variant.tsv` files, or nanopore `.pass.gz` files) and print out any samples that match a variant in `watchlist.vcf`. Example:
 
