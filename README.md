@@ -44,7 +44,7 @@ python ncov-watch.py --watchlist /path/to/watchlist.vcf --directory data 2>/dev/
 Alternatively you can pass the variant files on stdin:
 
 ```
-find data/ -name "*.variants.tsv | python ncov-watch.py --watchlist /path/to/watchlist.vcf 2>/dev/stderr
+find data/ -name "*.variants.tsv" | python ncov-watch.py --watchlist /path/to/watchlist.vcf 2>/dev/stderr
 ```
 
 (note `2>/dev/stderr` is to silence pysam warnings when parsing VCF files)
