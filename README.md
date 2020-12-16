@@ -35,7 +35,7 @@ It is recommended that you filter the results list of variant calling difference
 
 ### Search for variants of interest in a collection of genomes
 
-This script will recursively search a directory structure for variants files (ivar `variant.tsv` files, or nanopore `.pass.gz` files) and print out any samples that match a variant in `watchlist.vcf`. Example:
+This script will recursively search a directory structure for variants files (ivar `variant.tsv` files, or nanopore `.pass.vcf.gz` files) and print out any samples that match a variant in `watchlist.vcf`. Example:
 
 ```
 python ncov-watch.py --watchlist /path/to/watchlist.vcf --directory data 2>/dev/null
