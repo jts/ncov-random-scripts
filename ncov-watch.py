@@ -55,7 +55,7 @@ def load_ivar_variants(filename):
 
 def get_from_directory():
     find_files = lambda pattern : [ path for path in Path(args.directory).rglob(pattern) ]
-    files = find_files("*pass.vcf.gz") + find_files("*variants.tsv")
+    files = find_files("*pass.vcf") + find_files("*pass.vcf.gz") + find_files("*variants.tsv")
     for f in files:
         yield str(f)
 
