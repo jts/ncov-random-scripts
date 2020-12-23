@@ -54,7 +54,7 @@ def load_ivar_variants(filename):
 
 def get_from_directory():
     find_files = lambda pattern : [ path for path in Path(args.directory).rglob(pattern) ]
-    files = find_files("*.pass.vcf.gz") + find_files("*.variants.tsv")
+    files = find_files("*pass.vcf.gz") + find_files("*variants.tsv")
     for f in files:
         yield str(f)
 
@@ -79,10 +79,10 @@ if args.directory:
 
 print("\t".join(["sample", "mutation", "contig", "position", "reference", "alt"]))
 for f in gen_func():
-    if f.find(".variants.tsv") >= 0:
+    if f.find("variants.tsv") >= 0:
         variants = load_ivar_variants(f)
     else:
         variants = load_vcf(f)
     for v in variants:
         if v.key() in watch_dict:
-            print(f, watch_dict[v.key()], v.key().replace(",", "\t"))
+            print(os.path.basename(f), watch_dict[v.key()], v.key().replace(",", "\t"))
