@@ -26,6 +26,7 @@ def load_vcf(filename):
             sys.stderr.write("Multi-allelic VCF not supported\n")
             sys.exit(1)
 
+        
         v = Variant(record.chrom, record.pos, record.ref, record.alts[0])
         if "Name" in record.info:
             v.name = record.info["Name"]
@@ -62,27 +63,28 @@ def get_from_stdin():
     for line in sys.stdin:
         yield line.rstrip()
 
-description = 'Report samples containing a variant in the watchlist'
-parser = argparse.ArgumentParser(description=description)
-parser.add_argument('-w', '--watchlist', help='file containing the variants to screen for')
-parser.add_argument('-d', '--directory', help='root of directories holding variant files')
-args = parser.parse_args()
+if __name__ == "__main__":
+    description = 'Report samples containing a variant in the watchlist'
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('-w', '--watchlist', help='file containing the variants to screen for')
+    parser.add_argument('-d', '--directory', help='root of directories holding variant files')
+    args = parser.parse_args()
 
-watch_variants = load_vcf(args.watchlist)
-watch_dict = dict()
-for v in watch_variants:
-    watch_dict[v.key()] = v.name
+    watch_variants = load_vcf(args.watchlist)
+    watch_dict = dict()
+    for v in watch_variants:
+        watch_dict[v.key()] = v.name
 
-gen_func = get_from_stdin
-if args.directory:
-    gen_func = get_from_directory
+    gen_func = get_from_stdin
+    if args.directory:
+        gen_func = get_from_directory
 
-print("\t".join(["sample", "mutation", "contig", "position", "reference", "alt"]))
-for f in gen_func():
-    if f.find("variants.tsv") >= 0:
-        variants = load_ivar_variants(f)
-    else:
-        variants = load_vcf(f)
-    for v in variants:
-        if v.key() in watch_dict:
-            print(os.path.basename(f), watch_dict[v.key()], v.key().replace(",", "\t"))
+    print("\t".join(["sample", "mutation", "contig", "position", "reference", "alt"]))
+    for f in gen_func():
+        if f.find("variants.tsv") >= 0:
+            variants = load_ivar_variants(f)
+        else:
+            variants = load_vcf(f)
+        for v in variants:
+            if v.key() in watch_dict:
+                print("\t".join([os.path.basename(f), watch_dict[v.key()], v.contig, str(v.position), v.reference, v.alt]))
