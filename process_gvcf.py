@@ -89,7 +89,10 @@ def main():
         assert(not is_gvcf_ref or v_start == v_end)
 
         for i in range(v_start, v_end + 1):
-            contig_depth[record.chrom][i] = depth
+            assert(i > 0)
+            # VCF coordinates are 1-based, we record the depth vector as 0-based
+            # to be consistent with artic-mask
+            contig_depth[record.chrom][i - 1] = depth
 
         # do nothing else with ref records
         if is_gvcf_ref:

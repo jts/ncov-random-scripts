@@ -4,7 +4,10 @@ IN_BAM=$1
 PREFIX=`basename $IN_BAM .bam`
 REF=nCoV-2019.reference.fasta
 
-freebayes -p 1 -f $REF -F 0.2 -C 1 --pooled-continuous --min-coverage 10 --gvcf --gvcf-dont-use-chunk true $IN_BAM > $PREFIX.gvcf
+# the sed is to fix the header until a release is made with this fix
+# https://github.com/freebayes/freebayes/pull/549
+freebayes -p 1 -f $REF -F 0.2 -C 1 --pooled-continuous --min-coverage 10 \
+    --gvcf --gvcf-dont-use-chunk true $IN_BAM | sed s/QR,Number=1,Type=Integer/QR,Number=1,Type=Float/ > $PREFIX.gvcf
 
 # make depth mask, split variants into ambiguous/consensus
 # NB: this has to happen before bcftools norm or else the depth mask misses any bases exposed during normalization
