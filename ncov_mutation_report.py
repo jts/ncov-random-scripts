@@ -13,24 +13,43 @@ class Sample:
         self.lineage = "not_assigned"
         self.mutations = list()
 
-def load_watch_tsv(filename, data):
-    try:
-        with open(filename, 'r') as ifh:
-            reader = csv.DictReader(ifh, delimiter='\t')
-            for record in reader:
-                sample = clean_sample_name(record['sample'])
-                data[sample].mutations.append(record['mutation'])
-    except:
-        pass
-
 def clean_sample_name(sample_name):
     sample_name = re.sub('^Consensus_', '', sample_name) # added by ivar
     sample_name = re.sub('.primertrimmed.consensus_threshold_0.75_quality_20', '', sample_name) # added by ivar
     sample_name = re.sub('_MN908947.3', '', sample_name) # added by pangolin
     sample_name = re.sub('/ARTIC/nanopolish', '', sample_name) # added by ARTIC
     sample_name = re.sub('/ARTIC/medaka', '', sample_name) # added by ARTIC
-    sample_name = re.sub('.variants.tsv', '', sample_name) # added by ncov-watch
+    sample_name = re.sub('.variants.tsv', '', sample_name) # added by ncov-watch (ivar)
+    sample_name = re.sub('.variants.norm.vcf', '', sample_name) # added by ncov-watch (ivar)
     return sample_name
+
+def load_watch_tsv(filename, data):
+    with open(filename, 'r') as ifh:
+        reader = csv.DictReader(ifh, delimiter='\t')
+        for record in reader:
+            sample = clean_sample_name(record['sample'])
+            data[sample].mutations.append(record['mutation'])
+
+def get_alt_for_type_variant(variant):
+    fields = variant.split(":")
+    if fields[0] == "del":
+        return "del"
+    else:
+        assert(fields[0] == "aa" or fields[0] == "snp")
+        match = re.search('(\D+)(\d+)(\D+)', fields[2])
+        return match[3]
+
+def load_type_variants(filename, data):
+    with open(filename, 'r') as ifh:
+        reader = csv.DictReader(ifh, delimiter=',')
+        for record in reader:
+            sample = clean_sample_name(record['query'])
+
+            # this skips the non-genotype fields
+            for variant, genotype in list(record.items())[5:]:
+                variant_alt = get_alt_for_type_variant(variant)
+                if genotype == variant_alt:
+                    data[sample].mutations.append(variant)
 
 def load_lineages(filename, data):
     with open(filename, 'r') as ifh:
@@ -45,12 +64,26 @@ def main():
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument('-l', '--lineage-data', required=True, help='the filename with pangolin output')
-    parser.add_argument('-w', '--watch-data', required=True, help='the filename with ncov-watch output')
+    parser.add_argument('-w', '--watch-data', default="", help='the filename with ncov-watch output')
+    parser.add_argument('-t', '--type-variants-data', default="", help='the filename with type_variants.py output')
     parser.add_argument('-p', '--print-sample-names', action="store_true", help='print sample names for each record')
     args = parser.parse_args()
 
+    if args.watch_data == "" and args.type_variants_data == "":
+        sys.stderr.write("At least one of --watch-data or --type-variants-data must be provided\n")
+        sys.exit(1)
+    
+    if args.watch_data != "" and args.type_variants_data != "":
+        sys.stderr.write("At most one of --watch-data or --type-variants-data must be provided\n")
+        sys.exit(1)
+
     data = defaultdict(Sample)
-    load_watch_tsv(args.watch_data, data)
+
+    if args.watch_data != "":
+        load_watch_tsv(args.watch_data, data)
+    else:
+        load_type_variants(args.type_variants_data, data)
+    
     load_lineages(args.lineage_data, data)
 
     lineage_count_by_mutation = defaultdict( lambda: defaultdict(int) )
