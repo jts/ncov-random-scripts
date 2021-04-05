@@ -36,7 +36,7 @@ def get_alt_for_type_variant(variant):
         return "del"
     else:
         assert(fields[0] == "aa" or fields[0] == "snp")
-        match = re.search('(\D+)(\d+)(\D+)', fields[2])
+        match = re.search('(\D+)(\d+)(\D+)', fields[-1])
         return match[3]
 
 def load_type_variants(filename, data):
