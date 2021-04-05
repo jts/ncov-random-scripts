@@ -12,6 +12,7 @@ class Sample:
         self.lineage = "not_assigned"
         self.mutations = list()
 
+
 def clean_sample_name(sample_name):
     sample_name = re.sub('^Consensus_', '', sample_name) # added by ivar
     sample_name = re.sub('.primertrimmed.consensus_threshold_0.75_quality_20', '', sample_name) # added by ivar
@@ -57,6 +58,17 @@ def load_lineages(filename, data):
             sample = clean_sample_name(record['taxon'])
             data[sample].lineage = record['lineage']
 
+# aggregation functions, either merge mutations together or
+# return individual mutations
+def aggregate_combinations(sample):
+    if len(sample.mutations) > 0:
+        return [ " + ".join(sample.mutations) ]
+    else:
+        return []
+
+def aggregate_individual(sample):
+    return sample.mutations
+
 def main():
 
     description = 'Merge mutation and lineage results to produce a readable Report'
@@ -66,6 +78,7 @@ def main():
     parser.add_argument('-w', '--watch-data', default="", help='the filename with ncov-watch output')
     parser.add_argument('-t', '--type-variants-data', default="", help='the filename with type_variants.py output')
     parser.add_argument('-p', '--print-sample-names', action="store_true", help='print sample names for each record')
+    parser.add_argument('-c', '--combinations', action="store_true", help='report mutation combinations, rather than individual mutations')
     args = parser.parse_args()
 
     if args.watch_data == "" and args.type_variants_data == "":
@@ -85,10 +98,14 @@ def main():
     
     load_lineages(args.lineage_data, data)
 
+    aggregate_func = aggregate_individual
+    if args.combinations:
+        aggregate_func = aggregate_combinations
+
     lineage_count_by_mutation = defaultdict( lambda: defaultdict(int) )
     lineage_mutation_samples = defaultdict( lambda: defaultdict(list) )
     for sample_name, sample_data in data.items():
-        for m in sample_data.mutations:
+        for m in aggregate_func(sample_data):
             lineage_count_by_mutation[m][sample_data.lineage] += 1
             lineage_mutation_samples[m][sample_data.lineage].append(sample_name)
 
