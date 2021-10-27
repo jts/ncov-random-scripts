@@ -31,7 +31,7 @@ def alignment2vcf(reference_name, reference_aligned, query_aligned):
     query_position = 0
     
     print("##fileformat=VCFv4.2")
-    print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER")
+    print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsample")
 
     i = 0
     n = len(reference_aligned)
@@ -61,7 +61,7 @@ def alignment2vcf(reference_name, reference_aligned, query_aligned):
                 offset = 1
 
             # Record the difference
-            print("%s\t%d\t.\t%s\t%s\t.\t." % (reference_name, reference_position - offset + 1, r_sub.upper(), q_sub.upper()))
+            print("%s\t%d\t.\t%s\t%s\t.\t.\t.\tGT\t1" % (reference_name, reference_position - offset + 1, r_sub.upper(), q_sub.upper()))
 
             # update counters
             reference_position += (j - i - r_gaps)
