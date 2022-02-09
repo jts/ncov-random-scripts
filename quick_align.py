@@ -31,7 +31,9 @@ def alignment2vcf(reference_name, reference_aligned, query_aligned):
     query_position = 0
     
     print("##fileformat=VCFv4.2")
+    print('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">')
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tsample")
+
 
     i = 0
     n = len(reference_aligned)
